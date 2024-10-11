@@ -244,7 +244,13 @@ public class HabitTracker {
     }
 
     private static double getCompletionRateForPeriod(Habit habit, LocalDate startDate, LocalDate endDate) {
-        return 0;
+        int completionCount = 0;
+        for (LocalDate mark : habit.getCompletionDates()) {
+            if (mark.isAfter(startDate.minusDays(1)) && mark.isBefore(endDate.plusDays(1))) {
+                completionCount++;
+            }
+        }
+        return completionCount;
     }
 
     private static void markHabitCompletion(User user) {
