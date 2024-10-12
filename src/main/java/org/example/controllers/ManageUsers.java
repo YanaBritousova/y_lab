@@ -7,7 +7,13 @@ import java.util.Scanner;
 
 
 public class ManageUsers {
+
     static Scanner scanner = new Scanner(System.in);
+    /**
+     * Удаляет пользователя.
+     *
+     * @param user Текущий администратор.
+     */
     public static void manageUsers(User user) {
         if (HabitTracker.getUsers().values().size()==1) System.out.println("Список пользователей пуст.");
         else {

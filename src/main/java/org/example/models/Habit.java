@@ -19,6 +19,7 @@ public class Habit {
     private Frequency frequency;
     private LocalDateTime createDate;
     private List<LocalDate> completionDates = new ArrayList<>();
+    private long currentStreak = 0;
 
     public Habit(Long id, Long userId, String name, String description, Frequency frequency, LocalDateTime createDate) {
         this.id = id;

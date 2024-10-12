@@ -4,13 +4,21 @@ import org.example.enums.Frequency;
 import org.example.models.Habit;
 import org.example.models.User;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Scanner;
 
 public class ManageHabits {
     static Scanner scanner = new Scanner(System.in);
+
+    /**
+     * Управление привычками.
+     *
+     * @param user Текущий пользователь.
+     */
     public static void manageHabits(User user) {
         while (true) {
             System.out.println("\nУправление привычками:");
@@ -20,7 +28,8 @@ public class ManageHabits {
             System.out.println("4. Редактировать привычку");
             System.out.println("5. Удалить привычку");
             System.out.println("6. Статистика выполнения привычки");
-            System.out.println("7. Назад");
+            System.out.println("7. Просмотр текущих серий привычки");
+            System.out.println("8. Назад");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
@@ -43,6 +52,9 @@ public class ManageHabits {
                     getHabitStatistics(user);
                     break;
                 case 7:
+                    viewStreaks(user);
+                    break;
+                case 8:
                     return;
                 default:
                     System.out.println("Неверный выбор. Пожалуйста, попробуйте снова.");
@@ -50,6 +62,11 @@ public class ManageHabits {
         }
     }
 
+    /**
+     * Выводит статистику по привычкам.
+     *
+     * @param user Текущий пользователь
+     */
     private static void getHabitStatistics(User user) {
         if (user.getHabits().isEmpty()) {
             System.out.println("У вас нет привычек.");
@@ -77,6 +94,15 @@ public class ManageHabits {
 
     }
 
+    /**
+     * Подсчитывает статистику по привычкам.
+     *
+     * @param habit Выбранная привычка.
+     *
+     * @param startDate Начало периода
+     *
+     * @param endDate Окончание периода
+     */
     private static double getCompletionRateForPeriod(Habit habit, LocalDate startDate, LocalDate endDate) {
         int completionCount = 0;
         for (LocalDate mark : habit.getCompletionDates()) {
@@ -84,9 +110,18 @@ public class ManageHabits {
                 completionCount++;
             }
         }
-        return completionCount;
+        long daysInPeriod = ChronoUnit.DAYS.between(startDate, endDate.plusDays(1));
+        if (daysInPeriod == 0) {
+            return 0.0;
+        }
+        return (double) completionCount / daysInPeriod * 100;
     }
 
+    /**
+     * Отмечает выполнение привычки пользователем.
+     *
+     * @param user Текущий пользователь.
+     */
     private static void markHabitCompletion(User user) {
         if (user.getHabits().isEmpty()) {
             System.out.println("Список привычек пуст");
@@ -106,32 +141,96 @@ public class ManageHabits {
         }
         Habit habitToMark = user.getHabits().get(choice - 1);
 
+        if (checkHabitFrequency(habitToMark)) return;
+        habitToMark.getCompletionDates().add(LocalDate.now());
+        System.out.println("Выполнение привычки '" + habitToMark.getName() + "' отмечено.");
+        updateStreaks(habitToMark);
+
+    }
+
+    /**
+     * Обновляет текущую серию.
+     *
+     * @param habit Выбранная привычка.
+     */
+    private static void updateStreaks(Habit habit) {
+        long currentStreak = calculateStreak(habit);
+        habit.setCurrentStreak(currentStreak);
+    }
+
+    /**
+     * Подсчитывает текущую серию.
+     *
+     * @param habit Выбранная привычка.
+     */
+    public static long calculateStreak(Habit habit) {
+        long currentStreak = habit.getCurrentStreak();
+        if (habit.getCompletionDates().size()>1) {
+            LocalDate latestCompletionDate = habit.getCompletionDates().get(habit.getCompletionDates().size() - 2);
+
+            switch (habit.getFrequency()) {
+                case DAILY:
+                    if (latestCompletionDate.isBefore(LocalDate.now())) currentStreak+=1;
+                    else currentStreak=1;
+                    break;
+                case WEEKLY:
+                    LocalDate weekStartCompletion = latestCompletionDate.with(DayOfWeek.MONDAY);
+                    LocalDate weekStartToday = LocalDate.now().with(DayOfWeek.MONDAY);
+                    if(ChronoUnit.WEEKS.between(weekStartCompletion, weekStartToday)==1) currentStreak+=1;
+                    else currentStreak=1;
+                    break;
+                case MONTHLY:
+                    if (ChronoUnit.MONTHS.between(latestCompletionDate.withDayOfMonth(1), LocalDate.now().withDayOfMonth(1)) == 1){
+                        currentStreak+=1;
+                    }
+                    else currentStreak=1;
+                    break;
+            }
+        }
+        else currentStreak=1;
+        return currentStreak;
+    }
+
+    /**
+     * Проверяет, не была ли уже отмечена привычка.
+     *
+     * @param habitToMark Выбранная привычка.
+     */
+    private static boolean checkHabitFrequency(Habit habitToMark) {
         if (habitToMark.getFrequency() == Frequency.WEEKLY) {
             if (hasHabitBeenCompletedThisWeek(habitToMark)) {
                 System.out.println("Вы уже отмечали выполнение этой привычки на этой неделе.");
-                return;
+                return true;
             }
         } else if (habitToMark.getFrequency() == Frequency.MONTHLY) {
             if (hasHabitBeenCompletedThisMonth(habitToMark)) {
                 System.out.println("Вы уже отмечали выполнение этой привычки в этом месяце.");
-                return;
+                return true;
             }
         } else if (habitToMark.getFrequency() == Frequency.DAILY) {
             if (hasHabitBeenCompletedToday(habitToMark)) {
                 System.out.println("Вы уже отмечали выполнение этой привычки сегодня.");
-                return;
+                return true;
             }
         }
-
-        habitToMark.getCompletionDates().add(LocalDate.now());
-        System.out.println("Выполнение привычки '" + habitToMark.getName() + "' отмечено.");
+        return false;
     }
 
+    /**
+     * Проверяет, не была ли уже отмечена привычка сегодня.
+     *
+     * @param habit Выбранная привычка.
+     */
     private static boolean hasHabitBeenCompletedToday(Habit habit) {
         return habit.getCompletionDates().stream()
                 .anyMatch(date -> date.isEqual(LocalDate.now()));
     }
 
+    /**
+     * Проверяет, не была ли уже отмечена привычка на этой неделе.
+     *
+     * @param habit Выбранная привычка.
+     */
     private static boolean hasHabitBeenCompletedThisWeek(Habit habit) {
         LocalDate today = LocalDate.now();
         LocalDate startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1);
@@ -141,6 +240,11 @@ public class ManageHabits {
                 .anyMatch(date -> date.isAfter(startOfWeek.minusDays(1)) && date.isBefore(endOfWeek.plusDays(1)));
     }
 
+    /**
+     * Проверяет, не была ли уже отмечена привычка в этом месяце.
+     *
+     * @param habit Выбранная привычка.
+     */
     private static boolean hasHabitBeenCompletedThisMonth(Habit habit) {
         LocalDate today = LocalDate.now();
         LocalDate startOfMonth = today.withDayOfMonth(1);
@@ -151,6 +255,11 @@ public class ManageHabits {
     }
 
 
+    /**
+     * Выводит список привычек пользователя, отсортированный по дате создания.
+     *
+     * @param user Текущий пользователь.
+     */
     private static void viewHabits(User user) {
         if (user.getHabits().isEmpty()) System.out.println("Список пуст");
         else{
@@ -158,7 +267,13 @@ public class ManageHabits {
         }
     }
 
-    private static void editHabit(User user) {
+    /**
+     * Редактирует привычку пользователя.
+     *
+     *
+     @param user Текущий пользователь.
+     */
+    public static void editHabit(User user) {
         if (user.getHabits().isEmpty()) {
             System.out.println("У вас нет привычек для редактирования.");
             return;
@@ -170,7 +285,7 @@ public class ManageHabits {
             i++;
         }
         int choice = scanner.nextInt();
-        scanner.nextLine();
+//        scanner.nextLine();
         if (choice < 1 || choice > user.getHabits().size()) {
             System.out.println("Неверный выбор.");
             return;
@@ -208,7 +323,13 @@ public class ManageHabits {
         System.out.println("Привычка обновлена.");
     }
 
-    private static void deleteHabit(User user) {
+    /**
+     * Удаляет привычку пользователя.
+     *
+     *
+     @param user Текущий пользователь.
+     */
+    public static void deleteHabit(User user) {
         if (user.getHabits().isEmpty()) {
             System.out.println("У вас нет привычек для удаления.");
             return;
@@ -220,7 +341,7 @@ public class ManageHabits {
             i++;
         }
         int choice = scanner.nextInt();
-        scanner.nextLine();
+//        scanner.nextLine();
         if (choice < 1 || choice > user.getHabits().size()) {
             System.out.println("Неверный выбор.");
             return;
@@ -231,8 +352,12 @@ public class ManageHabits {
     }
 
 
-
-    private static void createHabit(User user) {
+    /**
+     * Создает новую привычку для пользователя.
+     *
+     * @param user Текущий пользователь.
+     */
+    public static void createHabit(User user) {
         System.out.println("\nСоздание привычки.");
         System.out.print("Введите название привычки: ");
         String name = scanner.nextLine();
@@ -262,4 +387,18 @@ public class ManageHabits {
         user.getHabits().add(habit);
         System.out.println("Привычка создана.");
     }
+
+    /**
+     * Выводит текущую серию для привычек.
+     *
+     *
+     @param user Текущий пользователь.
+     */
+    public static void viewStreaks(User user) {
+        System.out.println("\nТекущие серии выполнения привычек:");
+        for (Habit habit : user.getHabits()) {
+            System.out.println("'" + habit.getName() + "': " + habit.getCurrentStreak());
+        }
+    }
+
 }

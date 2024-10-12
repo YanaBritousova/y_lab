@@ -7,8 +7,11 @@ import org.example.models.User;
 import java.util.Scanner;
 
 public class Registration {
-    private static final Scanner scanner = new Scanner(System.in);
+    static Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Регистрирует нового пользователя.
+     */
     public static void registerUser() {
         System.out.println("\nРегистрация:");
         System.out.print("Введите email: ");
@@ -34,6 +37,11 @@ public class Registration {
         }
     }
 
+    /**
+     * Проверяет корректность email.
+     * @param email Email для проверки.
+     * @return true, если email корректен, false - в противном случае.
+     */
     private static boolean isValidEmail(String email) {
         String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
         return email.matches(regex);

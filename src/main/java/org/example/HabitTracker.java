@@ -10,6 +10,7 @@ import java.util.Map;
 public class HabitTracker {
 
     @Getter
+    @Setter
     static Map<Long, User> users = new HashMap<>();
     @Getter
     @Setter

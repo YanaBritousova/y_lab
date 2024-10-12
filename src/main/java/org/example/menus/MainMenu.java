@@ -8,6 +8,9 @@ import java.util.Scanner;
 public class MainMenu {
     private static final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Выводит главное меню приложения.
+     */
     public static void showMainMenu() {
         System.out.println("\nВыберите действие:");
         System.out.println("1. Регистрация");

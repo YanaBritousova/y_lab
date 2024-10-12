@@ -9,6 +9,11 @@ import java.util.Scanner;
 public class ManageProfile {
     static Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Управление профилем.
+     *
+     * @param user Текущий пользователь.
+     */
     public static void manageProfile(User user) {
         while (true) {
             User curUser = HabitTracker.getUsers().values().stream().filter(u->u.getId().equals(user.getId())).findAny().orElse(null);

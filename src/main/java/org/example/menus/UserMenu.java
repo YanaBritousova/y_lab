@@ -11,6 +11,11 @@ import java.util.Scanner;
 public class UserMenu {
     private static final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Выводит меню для пользователя.
+     *
+     * @param user Текущий пользователь.
+     */
     public static void userMenu(User user) {
         while (true) {
             User curUser = HabitTracker.getUsers().values().stream().filter(u->u.getId().equals(user.getId())).findAny().orElse(null);

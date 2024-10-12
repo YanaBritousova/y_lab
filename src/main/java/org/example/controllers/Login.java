@@ -11,6 +11,9 @@ import java.util.Scanner;
 public class Login {
     private static final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Выполняет вход пользователя в систему.
+     */
     public static void loginUser() {
         System.out.println("\nВход:");
         System.out.print("Введите email: ");
