@@ -1,12 +1,12 @@
-package org.example;
+package org.example.models;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.enums.Frequency;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
