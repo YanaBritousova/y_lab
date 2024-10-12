@@ -6,7 +6,7 @@ import org.example.controllers.Registration;
 import java.util.Scanner;
 
 public class MainMenu {
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void showMainMenu() {
         System.out.println("\nВыберите действие:");

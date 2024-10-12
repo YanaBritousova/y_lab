@@ -244,7 +244,7 @@ public class ManageHabits {
         System.out.println("3. Ежемесячно");
         int frequency = scanner.nextInt();
         Long nextHabitId=1L;
-        if (user.getHabits()!=null) {nextHabitId = Long.valueOf(user.getHabits().size() + 1);}
+        if (user.getHabits()!=null) {nextHabitId = (long) (user.getHabits().size() + 1);}
         Habit habit = new Habit();
         switch (frequency){
             case 1:

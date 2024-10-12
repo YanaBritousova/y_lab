@@ -16,7 +16,7 @@ public class ManageUsers {
                     .filter(u -> !u.getId().equals(user.getId()))
                     .forEach(u -> System.out.println(u.getId() + ". " + u.getName()));
             int choice = scanner.nextInt();
-            HabitTracker.getUsers().remove(Long.valueOf(choice));
+            HabitTracker.getUsers().remove((long) choice);
             System.out.println("Пользователь успешно удалён");
 
         }

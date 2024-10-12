@@ -7,7 +7,7 @@ import org.example.models.User;
 import java.util.Scanner;
 
 public class AdminMenu {
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     public static void adminMenu(User user) {
         while (true){
             System.out.println("\nМеню администратора "+user.getEmail() + ":");

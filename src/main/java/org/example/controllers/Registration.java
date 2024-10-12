@@ -7,7 +7,7 @@ import org.example.models.User;
 import java.util.Scanner;
 
 public class Registration {
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void registerUser() {
         System.out.println("\nРегистрация:");
